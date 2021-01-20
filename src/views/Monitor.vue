@@ -1,87 +1,340 @@
 <template>
   <div class="monitor-container">
     <el-card>
-      <div class="title">
-        <span>系统环境监控</span>
+      <div class="top">系统环境监控</div>
+      <div class="data" v-if="loading">
+        <el-row>
+          <el-col :span="12">
+            <div class="inner">
+              <div class="headline">CPU信息</div>
+              <el-row class="charts">
+                <el-col :span="14">
+                  <div id="cpu-rate" style="height: 240px"></div>
+                </el-col>
+                <el-col :span="10">
+                  <div class="div-list">
+                    <div>CPU系统使用率：<el-progress :percentage="monitorInfo.cpu.sys"></el-progress></div>
+                    <div>CPU当前等待率：<el-progress :percentage="monitorInfo.cpu.wait"></el-progress></div>
+                    <div>CPU核心数：{{ monitorInfo.cpu.cpuNum }}</div>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
+          </el-col>
+          <el-col :span="12">
+            <div class="inner">
+              <div class="headline">内存信息</div>
+              <el-row class="charts">
+                <el-col :span="14">
+                  <div id="mem-rate" style="height: 240px"></div>
+                </el-col>
+                <el-col :span="10">
+                  <div class="div-list">
+                    <div>内存总量：{{ monitorInfo.mem.total }}<el-progress :percentage="100"></el-progress></div>
+                    <div>
+                      已用内存：{{ monitorInfo.mem.used
+                      }}<el-progress
+                        :percentage="((monitorInfo.mem.used / monitorInfo.mem.total) * 100).toFixed(1)"
+                      ></el-progress>
+                    </div>
+                    <div>
+                      剩余内存：{{ monitorInfo.mem.free
+                      }}<el-progress
+                        :percentage="((monitorInfo.mem.free / monitorInfo.mem.total) * 100).toFixed(1)"
+                      ></el-progress>
+                    </div>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <div class="inner">
+              <div class="headline">JVM信息</div>
+              <el-row class="charts">
+                <el-col :span="10">
+                  <div id="jvm-rate" style="height: 240px"></div>
+                </el-col>
+                <el-col :span="7">
+                  <div class="div-list">
+                    <div>
+                      当前JVM占用内存总数：{{ monitorInfo.jvm.total }}<el-progress :percentage="100"></el-progress>
+                    </div>
+                    <div>
+                      JVM已用内存：{{ monitorInfo.jvm.used
+                      }}<el-progress
+                        :percentage="((monitorInfo.jvm.used / monitorInfo.jvm.total) * 100).toFixed(1)"
+                      ></el-progress>
+                    </div>
+                    <div>
+                      JVM空闲内存：{{ monitorInfo.jvm.free
+                      }}<el-progress
+                        :percentage="((monitorInfo.jvm.free / monitorInfo.jvm.total) * 100).toFixed(1)"
+                      ></el-progress>
+                    </div>
+                  </div>
+                </el-col>
+                <el-col :span="7">
+                  <div class="div-list">
+                    <div>JDK版本：{{ monitorInfo.jvm.version }}</div>
+                    <div>Java名称：{{ monitorInfo.jvm.name }}</div>
+                    <div>JDK路径：{{ monitorInfo.jvm.home }}</div>
+                    <div>运行时长：{{ monitorInfo.jvm.runTime }}</div>
+                    <div>启动时间：{{ monitorInfo.jvm.startTime }}</div>
+                    <div>JVM最大可用内存总数(M)：{{ monitorInfo.jvm.max }}</div>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="5">
+            <div class="inner">
+              <div class="headline">系统信息</div>
+              <div class="charts">
+                <div class="div-list">
+                  <div>服务器IP：{{ monitorInfo.sys.computerIp }}</div>
+                  <div>服务器名称：{{ monitorInfo.sys.computerName }}</div>
+                  <div>系统架构：{{ monitorInfo.sys.osArch }}</div>
+                  <div>操作系统：{{ monitorInfo.sys.osName }}</div>
+                  <div>项目路径：{{ monitorInfo.sys.userDir }}</div>
+                </div>
+              </div>
+            </div>
+          </el-col>
+          <el-col :span="19">
+            <div class="inner">
+              <div class="headline">磁盘信息</div>
+              <el-tabs :tab-position="'left'" style="height: 260px">
+                <el-tab-pane v-for="(item, index) in monitorInfo.sysFiles" :key="index" :label="'磁盘 ' + (index + 1)">
+                  <el-row class="charts">
+                    <el-col :span="8" class="rate">
+                      <div class="rate-inner">
+                        <el-progress type="circle" :percentage="item.usage" width="200"></el-progress>
+                        <!-- <div :id="'file-rate' + index" style="width: 100%; height: 240px"></div> -->
+                      </div>
+                    </el-col>
+                    <el-col :span="8">
+                      <div class="div-list">
+                        <div>
+                          总大小：{{ item.total }}
+                          <el-progress :percentage="100"></el-progress>
+                        </div>
+                        <div>
+                          已使用：{{ item.used
+                          }}<el-progress
+                            :percentage="
+                              (
+                                (item.used.slice(0, item.used.length - 3) /
+                                  item.total.slice(0, item.total.length - 3)) *
+                                100
+                              ).toFixed(1)
+                            "
+                          ></el-progress>
+                        </div>
+                        <div>
+                          剩余大小：{{ item.free
+                          }}<el-progress
+                            :percentage="
+                              (
+                                (item.free.slice(0, item.free.length - 3) /
+                                  item.total.slice(0, item.total.length - 3)) *
+                                100
+                              ).toFixed(1)
+                            "
+                          ></el-progress>
+                        </div>
+                      </div>
+                    </el-col>
+                    <el-col :span="8">
+                      <div class="div-list">
+                        <div>
+                          盘符路径：
+                          <div>{{ item.dirName }}</div>
+                        </div>
+                        <div>盘符类型：{{ item.sysTypeName }}</div>
+                        <div>文件类型：{{ item.typeName }}</div>
+                      </div>
+                    </el-col>
+                  </el-row>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+          </el-col>
+        </el-row>
       </div>
-      <div class="data">
-        <el-row>
-          <el-col :span="12">
-            <div class="col-inner">
-              <dl>
-                <dt>系统信息</dt>
-                <dd>操作系统：win10</dd>
-                <dd>Java版本：1.1</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-              </dl>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div class="col-inner">
-              <dl>
-                <dt>系统信息</dt>
-                <dd>操作系统：win10</dd>
-                <dd>Java版本：1.1</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-              </dl>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <div class="col-inner">
-              <dl>
-                <dt>系统信息</dt>
-                <dd>操作系统：win10</dd>
-                <dd>Java版本：1.1</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-              </dl>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div class="col-inner">
-              <dl>
-                <dt>系统信息</dt>
-                <dd>操作系统：win10</dd>
-                <dd>Java版本：1.1</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-              </dl>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <div class="col-inner">
-              <dl>
-                <dt>系统信息</dt>
-                <dd>操作系统：win10</dd>
-                <dd>Java版本：1.1</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-              </dl>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div class="col-inner">
-              <dl>
-                <dt>系统信息</dt>
-                <dd>操作系统：win10</dd>
-                <dd>Java版本：1.1</dd>
-                <dd>程序启动时间：2020-02-02 12:00:00</dd>
-              </dl>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+      <div v-else class="loading"><i class="el-icon-loading"></i>加载中</div>
     </el-card>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Monitor'
+  name: 'Monitor',
+  data() {
+    return {
+      monitorInfo: {
+        sys: {
+          computerIp: '',
+          computerName: '',
+          osArch: '',
+          osName: '',
+          userDir: ''
+        },
+        cpu: {
+          cpuNum: '',
+          sys: '',
+          total: '',
+          used: '',
+          free: '',
+          wait: ''
+        },
+        mem: {
+          total: '',
+          used: '',
+          free: '',
+          usage: ''
+        },
+        jvm: {
+          version: '',
+          name: '',
+          home: '',
+          runTime: '',
+          startTime: '',
+          used: '',
+          free: '',
+          total: '',
+          max: '',
+          usage: ''
+        }
+      },
+      activeNames: [0],
+      loading: false,
+      filesRate: []
+    }
+  },
+  methods: {
+    getMonitorInfo() {
+      this.$axios.get('/sacw-xj-admin/monitor/info').then((res) => {
+        console.log(res)
+        this.monitorInfo = res.data.data
+        this.loading = true
+        setTimeout(() => this.echartsRender(), 200)
+      })
+    },
+    echartsRender() {
+      this.cpu()
+      this.mem()
+      this.jvm()
+      for (let i = 0; i < this.monitorInfo.sysFiles.length; i++) {
+        this.files(i)
+      }
+      // this.files(1)
+    },
+    cpu() {
+      const cpuRate = this.$echarts.init(document.getElementById('cpu-rate'))
+      cpuRate.setOption({
+        series: [
+          {
+            name: 'CPU使用率',
+            type: 'pie',
+            data: [
+              { name: '使用率', value: this.monitorInfo.cpu.used },
+              { name: '空闲率', value: this.monitorInfo.cpu.free }
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: '{b} : {d}%'
+                },
+                labelLine: { show: true }
+              }
+            }
+          }
+        ]
+      })
+    },
+    mem() {
+      const memRate = this.$echarts.init(document.getElementById('mem-rate'))
+      memRate.setOption({
+        series: [
+          {
+            name: '内存使用率',
+            type: 'pie',
+            data: [
+              { name: '使用率', value: this.monitorInfo.mem.usage },
+              { name: '空闲率', value: 100 - this.monitorInfo.mem.usage }
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: '{b} : {d}%'
+                },
+                labelLine: { show: true }
+              }
+            }
+          }
+        ]
+      })
+    },
+    jvm() {
+      const jvmRate = this.$echarts.init(document.getElementById('jvm-rate'))
+      jvmRate.setOption({
+        series: [
+          {
+            name: 'JVM使用率',
+            type: 'pie',
+            data: [
+              { name: '使用率', value: this.monitorInfo.jvm.usage },
+              { name: '空闲率', value: 100 - this.monitorInfo.jvm.usage }
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: '{b} : {d}%'
+                },
+                labelLine: { show: true }
+              }
+            }
+          }
+        ]
+      })
+    },
+    files(i) {
+      this.filesRate[i] = this.$echarts.init(document.getElementById('file-rate' + i))
+      console.log(document.getElementById('file-rate' + i))
+      this.filesRate[i].setOption({
+        series: [
+          {
+            name: '磁盘使用率',
+            type: 'pie',
+            data: [
+              { name: '使用率', value: this.monitorInfo.sysFiles[i].usage },
+              { name: '空闲率', value: 100 - this.monitorInfo.sysFiles[i].usage }
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: '{b} : {d}%'
+                },
+                labelLine: { show: true }
+              }
+            }
+          }
+        ]
+      })
+    }
+  },
+  created() {
+    this.getMonitorInfo()
+  }
 }
 </script>
 
@@ -89,30 +342,51 @@ export default {
 .monitor-container {
   .el-card {
     min-height: 600px;
-    .title {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0 50px;
-      span {
-        color: #333;
-        font-size: 36px;
-      }
+    /deep/ .el-card__body {
+      padding: 0;
+    }
+    .top {
+      margin-bottom: 4px;
+      padding: 10px 20px;
+      background-color: #e0e0e0;
+      border-left: #409eff 6px solid;
+      font-size: 22px;
     }
     .data {
-      .col-inner {
-        margin: 10px;
-        padding: 10px;
-        height: 200px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        dt {
-          margin-bottom: 20px;
+      .inner {
+        border: 1px #e0e0e0 solid;
+        margin: 2px;
+        border-radius: 6px;
+        .headline {
+          background-color: #409eff;
+          color: #fff;
+          padding: 6px;
         }
-        dd {
-          margin-left: 0;
-          margin-bottom: 10px;
+        .charts {
+          padding: 10px 0;
+        }
+        .div-list {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          height: 200px;
+          padding: 20px;
+        }
+        .rate {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 240px;
+          .rate-inner {
+            width: 200px;
+            height: 200px;
+          }
         }
       }
+    }
+    .loading {
+      text-align: center;
+      font-size: 20px;
     }
   }
 }

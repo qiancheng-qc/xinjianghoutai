@@ -2,13 +2,13 @@
   <div class="login-container">
     <div class="login-box">
       <!-- 登录表单 -->
-      <el-form ref="loginFormRef" class="login-form" :model="loginForm" :rules="loginFormRules" label-width="80px">
+      <el-form ref="loginFormRef" class="login-form" :model="loginForm" label-width="80px">
         <!-- 用户名 -->
-        <el-form-item prop="username" label="用户名：">
-          <el-input v-model="loginForm.username"></el-input>
+        <el-form-item label="用户名：">
+          <el-input v-model="loginForm.loginName"></el-input>
         </el-form-item>
         <!-- 密码 -->
-        <el-form-item prop="password" label="密码：">
+        <el-form-item label="密码：">
           <el-input type="password" v-model="loginForm.password"></el-input>
         </el-form-item>
         <!-- 按钮 -->
@@ -26,17 +26,7 @@ export default {
   name: 'Login',
   data() {
     return {
-      loginForm: { username: '111111', password: '222222' },
-      loginFormRules: {
-        username: [
-          { required: true, message: '请输入登录名', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度3到10个字符', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 12, message: '长度6到12个字符', trigger: 'blur' }
-        ]
-      }
+      loginForm: { loginName: 'admin', password: '123456' }
     }
   },
   methods: {
@@ -44,9 +34,16 @@ export default {
       this.$refs.loginFormRef.resetFields()
     },
     login() {
-      this.$refs.loginFormRef.validate((valid) => {
-        if (!valid) return
-        console.log(1)
+      this.$axios.post('/sacw-xj-admin/login', this.loginForm).then((res) => {
+        console.log(res.data)
+        if (res.data.message === '交易成功') {
+          window.sessionStorage.setItem('name', res.data.data.name)
+          window.sessionStorage.setItem('userId', res.data.data.userId)
+          this.$message.success('登陆成功')
+          this.$router.push('/home')
+        } else {
+          this.$message.warning('登陆失败，请重试')
+        }
       })
     }
   }

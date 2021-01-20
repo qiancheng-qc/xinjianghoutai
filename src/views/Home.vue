@@ -4,10 +4,10 @@
       <el-header>
         <div class="header-left">刑事案件涉案财物共同保管中心子系统</div>
         <div class="header-right">
-          <div class="avatar"></div>
           <el-dropdown @command="handleCommand">
-            <span class="el-dropdown-link">admin<i class="el-icon-arrow-down el-icon--right"></i> </span>
+            <span class="el-dropdown-link">{{name}}<i class="el-icon-arrow-down el-icon--right"></i> </span>
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="changepwd">修改密码</el-dropdown-item>
               <el-dropdown-item command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -15,10 +15,14 @@
       </el-header>
       <el-container>
         <el-aside width="200px">
-          <el-menu :default-active="active" background-color="#f2f2f2" router>
+          <el-menu :default-active="active" background-color="#444" router text-color="#fff">
             <el-menu-item index="1" route="/users">
               <i class="el-icon-user"></i>
               <span slot="title">用户管理</span>
+            </el-menu-item>
+            <el-menu-item index="5" route="/role">
+              <i class="el-icon-link"></i>
+              <span slot="title">角色管理</span>
             </el-menu-item>
             <el-menu-item index="2" route="/setting">
               <i class="el-icon-setting"></i>
@@ -26,7 +30,7 @@
             </el-menu-item>
             <el-menu-item index="3" route="/log">
               <i class="el-icon-document"></i>
-              <span slot="title">实时日志</span>
+              <span slot="title">日志列表</span>
             </el-menu-item>
             <el-menu-item index="4" route="/monitor">
               <i class="el-icon-monitor"></i>
@@ -55,21 +59,29 @@ export default {
   data() {
     return {
       active: '1',
-      logoutDialogVisible: false
+      logoutDialogVisible: false,
+      name: ''
     }
   },
   created() {
+    this.name = window.sessionStorage.getItem('name')
     if (this.$route.path === '/setting') {
       this.active = '2'
     } else if (this.$route.path === '/log') {
       this.active = '3'
     } else if (this.$route.path === '/monitor') {
       this.active = '4'
+    } else if (this.$route.path === '/role') {
+      this.active = '5'
     }
   },
   methods: {
     handleCommand(e) {
       console.log(e)
+      if (e === 'changepwd') {
+        console.log('修改密码')
+        this.$router.push('/pwd')
+      }
       if (e === 'logout') {
         console.log('退出')
         this.logoutDialogVisible = true
@@ -78,7 +90,7 @@ export default {
     // 确认退出登录
     logoutConfirm() {
       this.logoutDialogVisible = false
-      // this.$router.push('/login')
+      // this.$router.push('/')
     }
   }
 }
@@ -95,27 +107,22 @@ export default {
       top: 0;
       z-index: 10;
       width: 100%;
-      background-color: #ccc;
+      background-color: #333;
       display: flex;
       justify-content: space-between;
       align-items: center;
       .header-left {
         font-size: 24px;
+        color: #fff;
       }
       .header-right {
         display: flex;
         align-items: center;
         font-size: 20px;
-        .avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background-color: #999;
-          margin-right: 10px;
-        }
+        padding-right: 20px;
         .el-dropdown-link {
           cursor: pointer;
-          color: #666;
+          color: #fff;
           font-size: 18px;
           &:hover {
             color: #409eff;
@@ -124,7 +131,7 @@ export default {
       }
     }
     .el-aside {
-      background-color: #f2f2f2;
+      background-color: #444;
       .el-menu {
         position: fixed;
         top: 60px;
@@ -132,6 +139,9 @@ export default {
         width: 200px;
         border-right: none;
       }
+    }
+    .el-main {
+      // background-color: #eee;
     }
   }
 }

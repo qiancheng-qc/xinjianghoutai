@@ -7,3 +7,9 @@ body,
 #app {
   height: 100%;
 }
+.head {
+  margin: 10px 0 20px;
+  padding: 6px 16px;
+  background-color: #e0e0e0;
+  border-left: #409eff 6px solid;
+}

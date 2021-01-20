@@ -1,6 +1,7 @@
 <template>
   <div class="users-container">
     <el-card>
+      <div class="head">用户管理</div>
       <!-- 顶部搜索 -->
       <el-row class="top">
         <el-form ref="form" :model="queryForm" :rules="formRules" label-width="90px">
@@ -37,8 +38,8 @@
       <el-divider></el-divider>
       <!-- 表格 -->
       <div class="table">
-        <el-table :data="tableData" style="width: 100%" stripe>
-          <el-table-column prop="name" label="序号"></el-table-column>
+        <el-table :data="tableData" style="width: 100%" stripe v-loading="loading" :element-loading-text="loadingText">
+          <el-table-column type="index" label="序号" width="50"> </el-table-column>
           <el-table-column prop="name" label="登录名"></el-table-column>
           <el-table-column prop="name" label="姓名"></el-table-column>
           <el-table-column prop="name" label="所属单位"></el-table-column>
@@ -72,27 +73,25 @@
       </div>
     </el-card>
     <!-- 修改弹出框 -->
-    <el-dialog title="提示" :visible.sync="dialogVisible" width="50%">
-      <el-form ref="form" :model="modifyForm" label-width="120px">
-        <el-form-item label="姓名：">
-          <el-input v-model="modifyForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="所属单位：">
-          <el-input v-model="modifyForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="用户角色：">
-          <el-input v-model="modifyForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="用户状态：">
-          <el-input v-model="modifyForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="操作功能：">
-          <el-input v-model="modifyForm.name"></el-input>
-        </el-form-item>
-      </el-form>
+    <el-dialog title="系统名称" :visible.sync="dialogVisible" width="50%">
+      <el-table :data="dialogData" style="width: 100%" stripe>
+        <el-table-column prop="name" label="模块名称"></el-table-column>
+        <el-table-column prop="name" label="当前状态">
+          <template slot-scope="scope">
+            <span v-if="scope.row.use">使用中</span>
+            <span v-else>已禁用</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <span style="color: blue; cursor: pointer" v-if="scope.row.use">停用</span>
+            <span style="color: blue; cursor: pointer" v-else>启用</span>
+          </template>
+        </el-table-column>
+      </el-table>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="confirm">修 改</el-button>
+        <el-button type="primary" @click="confirm">确认保存</el-button>
       </span>
     </el-dialog>
   </div>
@@ -124,11 +123,11 @@ export default {
         },
         {
           name: '222',
-          use: true
+          use: false
         },
         {
           name: '333',
-          use: true
+          use: false
         },
         {
           name: '444',
@@ -159,10 +158,14 @@ export default {
           use: true
         }
       ],
-      modifyForm: {
-        name: ''
-      },
-      queryOptions: ['正常', '停用']
+      dialogData: [
+        { name: '111', use: false },
+        { name: '222', use: true },
+        { name: '333', use: false }
+      ],
+      queryOptions: ['正常', '停用'],
+      loading: false,
+      loadingText: ''
     }
   },
   methods: {
@@ -176,17 +179,26 @@ export default {
     },
     // 启用
     start(row) {
-      row.use = !row.use
+      this.loadingText = '启用中，请稍后'
+      this.loading = true
+      setTimeout(() => {
+        row.use = !row.use
+        this.loading = false
+      }, 1000)
     },
     // 停用
     end(row) {
-      row.use = !row.use
+      this.loadingText = '停用中，请稍后'
+      this.loading = true
+      setTimeout(() => {
+        row.use = !row.use
+        this.loading = false
+      }, 1000)
     },
     // 修改
     modify(row) {
       console.log(row)
       this.dialogVisible = true
-      this.modifyForm.name = row.name
       this.index = this.tableData.indexOf(row)
       console.log(this.index)
     },

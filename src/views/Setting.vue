@@ -1,9 +1,7 @@
 <template>
   <div class="setting-container">
     <el-card>
-      <div class="title">
-        <span>系统设置</span>
-      </div>
+      <div class="head">系统设置</div>
       <div class="form">
         <el-form ref="form" :model="form" :rules="formRules" label-width="120px">
           <el-form-item label="共管系统名称：" prop="manageName">
@@ -58,20 +56,14 @@ export default {
 <style lang="scss" scoped>
 .setting-container {
   .el-card {
+    position: relative;
     min-height: 600px;
-    .title {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0 50px;
-      span {
-        color: #333;
-        font-size: 36px;
-      }
-    }
     .form {
-      .el-form {
-        margin: 0 100px;
-      }
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50%;
     }
   }
 }
