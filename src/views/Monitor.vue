@@ -13,8 +13,12 @@
                 </el-col>
                 <el-col :span="10">
                   <div class="div-list">
-                    <div>CPU系统使用率：<el-progress :percentage="monitorInfo.cpu.sys"></el-progress></div>
-                    <div>CPU当前等待率：<el-progress :percentage="monitorInfo.cpu.wait"></el-progress></div>
+                    <div>
+                      CPU系统使用率：<el-progress v-if="progress" :percentage="+monitorInfo.cpu.sys"></el-progress>
+                    </div>
+                    <div>
+                      CPU当前等待率：<el-progress v-if="progress" :percentage="+monitorInfo.cpu.wait"></el-progress>
+                    </div>
                     <div>CPU核心数：{{ monitorInfo.cpu.cpuNum }}</div>
                   </div>
                 </el-col>
@@ -30,17 +34,21 @@
                 </el-col>
                 <el-col :span="10">
                   <div class="div-list">
-                    <div>内存总量：{{ monitorInfo.mem.total }}<el-progress :percentage="100"></el-progress></div>
+                    <div>
+                      内存总量：{{ monitorInfo.mem.total }}<el-progress v-if="progress" :percentage="100"></el-progress>
+                    </div>
                     <div>
                       已用内存：{{ monitorInfo.mem.used
                       }}<el-progress
-                        :percentage="((monitorInfo.mem.used / monitorInfo.mem.total) * 100).toFixed(1)"
+                        v-if="progress"
+                        :percentage="+((monitorInfo.mem.used / monitorInfo.mem.total) * 100).toFixed(1)"
                       ></el-progress>
                     </div>
                     <div>
                       剩余内存：{{ monitorInfo.mem.free
                       }}<el-progress
-                        :percentage="((monitorInfo.mem.free / monitorInfo.mem.total) * 100).toFixed(1)"
+                        v-if="progress"
+                        :percentage="+((monitorInfo.mem.free / monitorInfo.mem.total) * 100).toFixed(1)"
                       ></el-progress>
                     </div>
                   </div>
@@ -60,18 +68,21 @@
                 <el-col :span="7">
                   <div class="div-list">
                     <div>
-                      当前JVM占用内存总数：{{ monitorInfo.jvm.total }}<el-progress :percentage="100"></el-progress>
+                      当前JVM占用内存总数：{{ monitorInfo.jvm.total
+                      }}<el-progress v-if="progress" :percentage="100"></el-progress>
                     </div>
                     <div>
                       JVM已用内存：{{ monitorInfo.jvm.used
                       }}<el-progress
-                        :percentage="((monitorInfo.jvm.used / monitorInfo.jvm.total) * 100).toFixed(1)"
+                        v-if="progress"
+                        :percentage="+((monitorInfo.jvm.used / monitorInfo.jvm.total) * 100).toFixed(1)"
                       ></el-progress>
                     </div>
                     <div>
                       JVM空闲内存：{{ monitorInfo.jvm.free
                       }}<el-progress
-                        :percentage="((monitorInfo.jvm.free / monitorInfo.jvm.total) * 100).toFixed(1)"
+                        v-if="progress"
+                        :percentage="+((monitorInfo.jvm.free / monitorInfo.jvm.total) * 100).toFixed(1)"
                       ></el-progress>
                     </div>
                   </div>
@@ -83,7 +94,7 @@
                     <div>JDK路径：{{ monitorInfo.jvm.home }}</div>
                     <div>运行时长：{{ monitorInfo.jvm.runTime }}</div>
                     <div>启动时间：{{ monitorInfo.jvm.startTime }}</div>
-                    <div>JVM最大可用内存总数(M)：{{ monitorInfo.jvm.max }}</div>
+                    <div>JVM最大可用内存总数：{{ monitorInfo.jvm.max }}</div>
                   </div>
                 </el-col>
               </el-row>
@@ -113,21 +124,27 @@
                   <el-row class="charts">
                     <el-col :span="8" class="rate">
                       <div class="rate-inner">
-                        <el-progress type="circle" :percentage="item.usage" width="200"></el-progress>
-                        <!-- <div :id="'file-rate' + index" style="width: 100%; height: 240px"></div> -->
+                        <el-progress
+                          v-if="progress"
+                          type="circle"
+                          :percentage="+item.usage"
+                          :width="200"
+                          :format="format"
+                        ></el-progress>
                       </div>
                     </el-col>
                     <el-col :span="8">
                       <div class="div-list">
                         <div>
                           总大小：{{ item.total }}
-                          <el-progress :percentage="100"></el-progress>
+                          <el-progress v-if="progress" :percentage="100"></el-progress>
                         </div>
                         <div>
                           已使用：{{ item.used
                           }}<el-progress
+                            v-if="progress"
                             :percentage="
-                              (
+                              +(
                                 (item.used.slice(0, item.used.length - 3) /
                                   item.total.slice(0, item.total.length - 3)) *
                                 100
@@ -138,8 +155,9 @@
                         <div>
                           剩余大小：{{ item.free
                           }}<el-progress
+                            v-if="progress"
                             :percentage="
-                              (
+                              +(
                                 (item.free.slice(0, item.free.length - 3) /
                                   item.total.slice(0, item.total.length - 3)) *
                                 100
@@ -166,7 +184,7 @@
           </el-col>
         </el-row>
       </div>
-      <div v-else class="loading"><i class="el-icon-loading"></i>加载中</div>
+      <div v-else class="loading"><i class="el-icon-loading"></i> 加载中</div>
     </el-card>
   </div>
 </template>
@@ -176,44 +194,10 @@ export default {
   name: 'Monitor',
   data() {
     return {
-      monitorInfo: {
-        sys: {
-          computerIp: '',
-          computerName: '',
-          osArch: '',
-          osName: '',
-          userDir: ''
-        },
-        cpu: {
-          cpuNum: '',
-          sys: '',
-          total: '',
-          used: '',
-          free: '',
-          wait: ''
-        },
-        mem: {
-          total: '',
-          used: '',
-          free: '',
-          usage: ''
-        },
-        jvm: {
-          version: '',
-          name: '',
-          home: '',
-          runTime: '',
-          startTime: '',
-          used: '',
-          free: '',
-          total: '',
-          max: '',
-          usage: ''
-        }
-      },
+      monitorInfo: {},
       activeNames: [0],
       loading: false,
-      filesRate: []
+      progress: false
     }
   },
   methods: {
@@ -226,13 +210,10 @@ export default {
       })
     },
     echartsRender() {
+      this.progress = true
       this.cpu()
       this.mem()
       this.jvm()
-      for (let i = 0; i < this.monitorInfo.sysFiles.length; i++) {
-        this.files(i)
-      }
-      // this.files(1)
     },
     cpu() {
       const cpuRate = this.$echarts.init(document.getElementById('cpu-rate'))
@@ -242,7 +223,7 @@ export default {
             name: 'CPU使用率',
             type: 'pie',
             data: [
-              { name: '使用率', value: this.monitorInfo.cpu.used },
+              { name: '用户使用率', value: this.monitorInfo.cpu.used },
               { name: '空闲率', value: this.monitorInfo.cpu.free }
             ],
             itemStyle: {
@@ -306,30 +287,8 @@ export default {
         ]
       })
     },
-    files(i) {
-      this.filesRate[i] = this.$echarts.init(document.getElementById('file-rate' + i))
-      console.log(document.getElementById('file-rate' + i))
-      this.filesRate[i].setOption({
-        series: [
-          {
-            name: '磁盘使用率',
-            type: 'pie',
-            data: [
-              { name: '使用率', value: this.monitorInfo.sysFiles[i].usage },
-              { name: '空闲率', value: 100 - this.monitorInfo.sysFiles[i].usage }
-            ],
-            itemStyle: {
-              normal: {
-                label: {
-                  show: true,
-                  formatter: '{b} : {d}%'
-                },
-                labelLine: { show: true }
-              }
-            }
-          }
-        ]
-      })
+    format(percentage) {
+      return '使用率:' + `${percentage}%`
     }
   },
   created() {
@@ -361,6 +320,7 @@ export default {
           background-color: #409eff;
           color: #fff;
           padding: 6px;
+          border-radius: 6px 6px 0 0;
         }
         .charts {
           padding: 10px 0;
@@ -385,8 +345,12 @@ export default {
       }
     }
     .loading {
+      margin-top: 250px;
       text-align: center;
-      font-size: 20px;
+      font-size: 24px;
+      .el-icon-loading {
+        color: #409eff;
+      }
     }
   }
 }

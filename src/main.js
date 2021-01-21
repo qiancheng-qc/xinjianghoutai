@@ -5,7 +5,6 @@ import router from './router'
 import axios from 'axios'
 
 import qs from 'qs'
-
 import * as echarts from 'echarts'
 
 import './assets/global.css'
@@ -17,6 +16,17 @@ Vue.use(ElementUI)
 axios.defaults.baseURL = 'http://39.100.13.186:8084'
 // axios.defaults.baseURL = 'http://192.168.2.108:8084'
 axios.defaults.withCredentials = true
+axios.interceptors.response.use(config => {
+  // if (config.data.message === '交易成功') {
+  //   ElementUI.Message({
+  //     message: 'hahahahaha',
+  //     type: 'error'
+  //   })
+  //   router.push('/')
+  // }
+  console.log(config.data.message)
+  return config
+})
 Vue.prototype.$axios = axios
 
 Vue.prototype.$qs = qs
