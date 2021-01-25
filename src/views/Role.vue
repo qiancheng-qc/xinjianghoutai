@@ -3,9 +3,10 @@
     <el-card>
       <div class="head">角色管理</div>
       <div class="table">
-        <el-table :data="tableData" style="width: 100%" stripe>
+        <el-table :data="tableData" style="width: 100%" stripe v-loading="loading">
           <el-table-column type="index" label="序号" width="50"> </el-table-column>
           <el-table-column prop="name" label="角色名称"></el-table-column>
+          <el-table-column prop="appName" label="地区"></el-table-column>
           <el-table-column prop="createTime" label="创建时间"></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
@@ -20,7 +21,7 @@
           @current-change="handleCurrentChange"
           :current-page="1"
           :page-size="10"
-          layout="prev, pager, next, jumper"
+          layout="total, prev, pager, next, jumper"
           :total="total"
         >
         </el-pagination>
@@ -50,7 +51,8 @@ export default {
       total: 0,
       userId: window.sessionStorage.getItem('userId'),
       checkList: [],
-      menuList: []
+      menuList: [],
+      loading: false
     }
   },
   created() {
@@ -59,8 +61,10 @@ export default {
   },
   methods: {
     getRoleList() {
+      this.loading = true
       this.$axios.get('/sacw-xj-admin/auth/role/list?userId=' + this.userId).then((res) => {
         console.log(res.data.data)
+        this.loading = false
         this.tableData = res.data.data
         this.total = this.tableData.length
       })

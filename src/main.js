@@ -16,15 +16,15 @@ Vue.use(ElementUI)
 axios.defaults.baseURL = 'http://39.100.13.186:8084'
 // axios.defaults.baseURL = 'http://192.168.2.108:8084'
 axios.defaults.withCredentials = true
+axios.defaults.timeout = 30000
 axios.interceptors.response.use(config => {
-  // if (config.data.message === '交易成功') {
-  //   ElementUI.Message({
-  //     message: 'hahahahaha',
-  //     type: 'error'
-  //   })
-  //   router.push('/')
-  // }
-  console.log(config.data.message)
+  if (config.data.message === '登录失效,请重新登录') {
+    ElementUI.Message({
+      message: '登录失效,请重新登录',
+      type: 'error'
+    })
+    router.push('/')
+  }
   return config
 })
 Vue.prototype.$axios = axios

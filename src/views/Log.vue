@@ -3,7 +3,7 @@
     <el-card>
       <div class="head">日志列表</div>
       <div class="table">
-        <el-table :data="logs" style="width: 100%" stripe>
+        <el-table :data="logs" style="width: 100%" stripe v-loading="loading">
           <el-table-column type="index" label="序号" width="50"></el-table-column>
           <el-table-column prop="createdDateTime" label="操作时间" width="200"></el-table-column>
           <el-table-column prop="createdBy" label="操作人" width="160"></el-table-column>
