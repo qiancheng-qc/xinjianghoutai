@@ -4,7 +4,6 @@ import router from './router'
 
 import axios from 'axios'
 
-import qs from 'qs'
 import * as echarts from 'echarts'
 
 import './assets/global.css'
@@ -18,18 +17,24 @@ axios.defaults.baseURL = 'http://39.100.13.186:8084'
 axios.defaults.withCredentials = true
 axios.defaults.timeout = 30000
 axios.interceptors.response.use(config => {
-  if (config.data.message === '登录失效,请重新登录') {
+  if (config.data.status === 200 || config.data.flag === true) {
+    if (config.data.message === '登录失效,请重新登录') {
+      ElementUI.Message({
+        message: '登录失效,请重新登录',
+        type: 'error'
+      })
+      router.push('/')
+    }
+  } else {
     ElementUI.Message({
-      message: '登录失效,请重新登录',
+      message: '获取数据失败，请重试',
       type: 'error'
     })
-    router.push('/')
   }
   return config
 })
 Vue.prototype.$axios = axios
 
-Vue.prototype.$qs = qs
 Vue.prototype.$echarts = echarts
 
 Vue.config.productionTip = false

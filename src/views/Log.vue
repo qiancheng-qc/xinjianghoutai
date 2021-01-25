@@ -2,6 +2,7 @@
   <div class="log-container">
     <el-card>
       <div class="head">日志列表</div>
+      <!-- 表格区域 -->
       <div class="table">
         <el-table :data="logs" style="width: 100%" stripe v-loading="loading">
           <el-table-column type="index" label="序号" width="50"></el-table-column>
@@ -22,11 +23,14 @@
           </el-table-column>
         </el-table>
       </div>
+      <!-- 表格底部 按钮与页码 -->
       <div class="page">
+        <!-- 导出按钮区域 -->
         <div class="btns">
           <el-button @click="exportExcel('1')" type="danger" size="mini" icon="el-icon-download">导出当前页</el-button>
           <el-button @click="exportExcel('2')" type="warning" size="mini" icon="el-icon-download">导出全部</el-button>
         </div>
+        <!-- 页码区域 -->
         <el-pagination
           background
           @current-change="handleCurrentChange"
@@ -40,11 +44,11 @@
     </el-card>
     <!-- 点击查看 -->
     <el-dialog title="日志数据" :visible.sync="dialogVisible" width="50%">
-      <div style="margin-bottom: 10px;">操作时间：{{ dialogData.createdDateTime }}</div>
-      <div style="margin-bottom: 10px;">操作人：{{ dialogData.createdBy }}</div>
-      <div style="margin-bottom: 10px;">日志内容：{{ dialogData.logData }}</div>
-      <div style="margin-bottom: 10px;">日志ID：{{ dialogData.id }}</div>
-      <div style="margin-bottom: 10px;">操作状态：{{ dialogData.status }}</div>
+      <div style="margin-bottom: 10px">操作时间：{{ dialogData.createdDateTime }}</div>
+      <div style="margin-bottom: 10px">操作人：{{ dialogData.createdBy }}</div>
+      <div style="margin-bottom: 10px">日志内容：{{ dialogData.logData }}</div>
+      <div style="margin-bottom: 10px">日志ID：{{ dialogData.id }}</div>
+      <div style="margin-bottom: 10px">操作状态：{{ dialogData.status }}</div>
     </el-dialog>
   </div>
 </template>
@@ -55,7 +59,8 @@ export default {
   name: 'Log',
   data() {
     return {
-      logs: [],
+      logs: [], // 日志列表
+      // 导出excel表格的表头
       columns: [
         {
           title: '操作时间',
@@ -78,23 +83,25 @@ export default {
           key: 'status'
         }
       ],
+      // 获取日志列表请求参数
       logvo: {
         logType: 0,
         pageNum: 1,
         pageSize: 10,
         userId: window.sessionStorage.getItem('userId')
       },
-      total: 0,
-      loading: false,
-      exportData: [],
-      dialogVisible: false,
-      dialogData: {}
+      total: 0, // 表格数据总数
+      loading: false, // 表格加载状态
+      exportData: [], // 导出全部
+      dialogVisible: false, // 弹框开关
+      dialogData: {} // 弹框数据
     }
   },
   created() {
     this.getLogs()
   },
   methods: {
+    // 获取日志列表
     getLogs() {
       this.loading = true
       this.$axios.post('/sacw-xj-admin/log/list', this.logvo).then((res) => {

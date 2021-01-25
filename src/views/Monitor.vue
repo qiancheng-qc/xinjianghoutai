@@ -3,15 +3,17 @@
     <el-card>
       <div class="top">系统环境监控</div>
       <div class="data" v-if="loading">
+        <!-- cpu 内存 -->
         <el-row>
+          <!-- cpu -->
           <el-col :span="12">
             <div class="inner">
               <div class="headline">CPU信息</div>
               <el-row class="charts">
-                <el-col :span="14">
+                <el-col :span="16">
                   <div id="cpu-rate" style="height: 240px"></div>
                 </el-col>
-                <el-col :span="10">
+                <el-col :span="8">
                   <div class="div-list">
                     <div>
                       CPU系统使用率：<el-progress v-if="progress" :percentage="+monitorInfo.cpu.sys"></el-progress>
@@ -25,14 +27,15 @@
               </el-row>
             </div>
           </el-col>
+          <!-- 内存 -->
           <el-col :span="12">
             <div class="inner">
               <div class="headline">内存信息</div>
               <el-row class="charts">
-                <el-col :span="14">
+                <el-col :span="16">
                   <div id="mem-rate" style="height: 240px"></div>
                 </el-col>
-                <el-col :span="10">
+                <el-col :span="8">
                   <div class="div-list">
                     <div>
                       内存总量：{{ monitorInfo.mem.total }}<el-progress v-if="progress" :percentage="100"></el-progress>
@@ -57,6 +60,7 @@
             </div>
           </el-col>
         </el-row>
+        <!-- jvm -->
         <el-row>
           <el-col :span="24">
             <div class="inner">
@@ -101,7 +105,9 @@
             </div>
           </el-col>
         </el-row>
+        <!-- 系统 磁盘 -->
         <el-row>
+          <!-- 系统 -->
           <el-col :span="5">
             <div class="inner">
               <div class="headline">系统信息</div>
@@ -116,6 +122,7 @@
               </div>
             </div>
           </el-col>
+          <!-- 磁盘 -->
           <el-col :span="19">
             <div class="inner">
               <div class="headline">磁盘信息</div>
@@ -194,13 +201,13 @@ export default {
   name: 'Monitor',
   data() {
     return {
-      monitorInfo: {},
-      activeNames: [0],
-      loading: false,
-      progress: false
+      monitorInfo: {}, // 监控数据
+      loading: false, // 加载状态
+      progress: false // 进度条数据加载状态
     }
   },
   methods: {
+    // 获取监控数据
     getMonitorInfo() {
       this.$axios.get('/sacw-xj-admin/monitor/info').then((res) => {
         console.log(res)
@@ -209,12 +216,14 @@ export default {
         setTimeout(() => this.echartsRender(), 200)
       })
     },
+    // echarts图表渲染
     echartsRender() {
       this.progress = true
       this.cpu()
       this.mem()
       this.jvm()
     },
+    // cpu图表渲染
     cpu() {
       const cpuRate = this.$echarts.init(document.getElementById('cpu-rate'))
       cpuRate.setOption({
@@ -222,6 +231,7 @@ export default {
           {
             name: 'CPU使用率',
             type: 'pie',
+            radius: '60%',
             data: [
               { name: '用户使用率', value: this.monitorInfo.cpu.used },
               { name: '空闲率', value: this.monitorInfo.cpu.free }
@@ -239,6 +249,7 @@ export default {
         ]
       })
     },
+    // 内存图表渲染
     mem() {
       const memRate = this.$echarts.init(document.getElementById('mem-rate'))
       memRate.setOption({
@@ -246,6 +257,7 @@ export default {
           {
             name: '内存使用率',
             type: 'pie',
+            radius: '60%',
             data: [
               { name: '使用率', value: this.monitorInfo.mem.usage },
               { name: '空闲率', value: 100 - this.monitorInfo.mem.usage }
@@ -263,6 +275,7 @@ export default {
         ]
       })
     },
+    // jvm图表渲染
     jvm() {
       const jvmRate = this.$echarts.init(document.getElementById('jvm-rate'))
       jvmRate.setOption({
@@ -287,6 +300,7 @@ export default {
         ]
       })
     },
+    // 磁盘百分比内容
     format(percentage) {
       return '使用率:' + `${percentage}%`
     }

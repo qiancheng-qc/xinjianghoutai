@@ -2,9 +2,7 @@
   <div class="pwd-container">
     <el-card>
       <div class="head">修改密码</div>
-      <!-- <div class="title">
-        <span>修改密码</span>
-      </div> -->
+      <!-- 表单 -->
       <div class="form">
         <el-form ref="form" :model="form" :rules="formRules" label-width="120px">
           <el-form-item label="原密码：" prop="oldPasswd">
@@ -30,6 +28,7 @@
 export default {
   name: 'Pwd',
   data() {
+    // 新密码 确认密码 验证
     var validatePass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'))
@@ -40,12 +39,14 @@ export default {
       }
     }
     return {
+      // 修改表单
       form: {
         oldPasswd: '',
         newPasswd: '',
         confirmPasswd: '',
         userId: window.sessionStorage.getItem('userId')
       },
+      // 表单验证
       formRules: {
         oldPasswd: [
           { required: true, message: '请输入原密码', trigger: 'blur' },
@@ -67,12 +68,8 @@ export default {
         if (!valid) return
         this.$axios.post('/sacw-xj-admin/update', this.form).then((res) => {
           console.log(res)
-          if (res.data.status === 200) {
-            this.$message.success(res.data.data)
-            this.$router.push('/')
-          } else {
-            this.$message.warning(res.data.data)
-          }
+          this.$message.success(res.data.data)
+          this.$router.push('/')
         })
       })
     },
@@ -89,15 +86,6 @@ export default {
   .el-card {
     position: relative;
     min-height: 600px;
-    .title {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0 50px;
-      span {
-        color: #333;
-        font-size: 36px;
-      }
-    }
     .form {
       position: absolute;
       top: 50%;

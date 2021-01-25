@@ -26,13 +26,16 @@ export default {
   name: 'Login',
   data() {
     return {
+      // 登录表单数据
       loginForm: { loginName: 'admin', password: '123456' }
     }
   },
   methods: {
+    // 重置表单
     resetLoginForm() {
       this.$refs.loginFormRef.resetFields()
     },
+    // 登录
     login() {
       this.$axios.post('/sacw-xj-admin/login', this.loginForm).then((res) => {
         console.log(res.data)
